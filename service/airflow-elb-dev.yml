@@ -4,7 +4,7 @@ metadata:
   name: airflow-elb-web
   namespace: dev
   labels:
-    component: webserver
+    component: web
     release: airflow-dev
   annotations:
 spec:
