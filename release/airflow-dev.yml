@@ -55,7 +55,7 @@ spec:
       extraVolumes:
         - name: "logs"
           persistentVolumeClaim:
-            claimName: "airflow-dev-logs"
+            claimName: "efs-storage-claim"
       extraVolumeMounts:
         - name: "logs"
           mountPath: "/opt/airflow/logs"
