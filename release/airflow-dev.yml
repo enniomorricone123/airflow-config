@@ -13,50 +13,48 @@ spec:
     version: 8.0.0
   values:
     fernetKey: "zTxhk7FuGqQVPZVoukLn5bGWOrgHzhQnBnaqAItcZGI="
-    env:
-      - name: "AIRFLOW__KUBERNETES__DAGS_IN_IMAGE"
-        value: "False"
-      - name: "AIRFLOW__KUBERNETES__NAMESPACE"
-        value: "dev"
-      - name: "AIRFLOW__KUBERNETES__WORKER_CONTAINER_REPOSITORY"
-        value: "apache/airflow"
-      - name: "AIRFLOW__KUBERNETES__WORKER_CONTAINER_TAG"
-        value: "2.0.0-python3.7"
-      - name: "AIRFLOW__KUBERNETES__RUN_AS_USER"
-        value: "50000"
-      - name: "AIRFLOW__CORE__LOAD_EXAMPLES"
-        value: "False"
-      - name : "AIRFLOW__WEBSERVER__BASE_URL"
-        value: "https://localhost:8080/airflow-dev"
-      - name : "AIRFLOW__KUBERNETES__LOGS_VOLUME_CLAIM"
-        value: "airflow-dev-logs"
+    config:
+      # AIRFLOW__KUBERNETES__DAGS_IN_IMAGE: "False"
+      AIRFLOW__KUBERNETES__NAMESPACE: "dev"
+      AIRFLOW__KUBERNETES__WORKER_CONTAINER_REPOSITORY: "apache/airflow"
+      AIRFLOW__KUBERNETES__WORKER_CONTAINER_TAG: "2.0.2-python3.7"
+      # AIRFLOW__KUBERNETES__RUN_AS_USER: "50000"
+      AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+      AIRFLOW__WEBSERVER__BASE_URL: "https://localhost:8080/airflow-dev"
+      # AIRFLOW__KUBERNETES__LOGS_VOLUME_CLAIM: "airflow-dev-logs"
     executor: "KubernetesExecutor"
     dags:
       persistence:
         enabled: true
         size: 512Mi
-        storageClassName: aws-efs
+        storageClass: aws-efs
         existingClaim: efs-storage-claim
+        subPath: ""
       gitSync:
         enabled: true
-        repo: git@github.com:enniomorricone123/airflow-dags.git
+        repo: "git@github.com:enniomorricone123/airflow-dags.git"
         branch: master
-        maxFailures: 0
-        dest: "dags-sync"
-        depth: "1"
-        subpath: ""
-        wait: 60
-        sshKeySecret: airflow-git-private-dags
+        repoSubPath: ""
+        syncWait: 60
+        sshSecret: "airflow-git-private-dags"
     ingress:
       enabled: true
       web:
         path: "airflow-dev"
-    webserver:
-      extraVolumes:
-        - name: "logs"
-          persistentVolumeClaim:
-            claimName: "efs-storage-claim"
-      extraVolumeMounts:
-        - name: "logs"
-          mountPath: "/opt/airflow/logs"
-        
+    # web:
+    #   extraVolumes:
+    #     - name: "logs"
+    #       persistentVolumeClaim:
+    #         claimName: "efs-storage-claim"
+      # extraVolumeMounts:
+      #   - name: "logs"
+      #     mountPath: "/opt/airflow/logs"
+    logs:
+      path: "/opt/airflow/logs"
+      persistence: 
+        enabled: true
+        existingClaim: "efs-storage-claim"
+        storageClass: aws-efs
+        size: 512Mi
+      
+      
